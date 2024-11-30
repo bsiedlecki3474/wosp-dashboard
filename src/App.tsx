@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import { app } from './firebase'
-import { signInWithPopup, signOut, getAuth, onAuthStateChanged, GoogleAuthProvider } from "firebase/auth";
+import { signInWithPopup, signOut, getAuth, GoogleAuthProvider } from "firebase/auth";
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { getDatabase, ref, get, set, push, query, orderByChild, equalTo } from 'firebase/database';
+import { getDatabase, ref, get, query, orderByChild, equalTo } from 'firebase/database';
 import type { User } from 'firebase/auth'
 
 
