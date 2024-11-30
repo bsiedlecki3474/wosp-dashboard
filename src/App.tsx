@@ -12,9 +12,11 @@ const provider = new GoogleAuthProvider();
 const db = getDatabase(app);
 
 const isUserAdmin = async (user: User): Promise<boolean> => {
-  if (!user?.uid) return false;
-  const usersRef = ref(db, `tenants/${user.uid}/users`);
-  const readUsers = await get(query(usersRef, orderByChild('uid'), equalTo('mPf1iBnjH8XSgLQ1SNUVLVs4vp43')));
+  if (!user?.email || !user?.uid) return false;
+  const [, domain] = user.email.split('@');
+  const [domainName] = domain.split('.');
+  const usersRef = ref(db, `tenants/${domainName}/users`);
+  const readUsers = await get(query(usersRef, orderByChild('uid'), equalTo(user.uid)));
   return readUsers.val().filter((el: User) => !!el?.uid).length > 0;
 }
 
