@@ -22,8 +22,6 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, loading] = useAuthState(auth);
 
-  console.log(user);
-
   useEffect(() => {
     user && isUserAdmin(user).then((result) => setIsAdmin(result));
   }, [user])
