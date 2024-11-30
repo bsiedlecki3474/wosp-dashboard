@@ -6,7 +6,6 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { getDatabase, ref, get, query, orderByChild, equalTo } from 'firebase/database';
 import type { User } from 'firebase/auth'
 
-
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
@@ -22,6 +21,8 @@ const isUserAdmin = async (user: User): Promise<boolean> => {
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, loading] = useAuthState(auth);
+
+  console.log(user);
 
   useEffect(() => {
     user && isUserAdmin(user).then((result) => setIsAdmin(result));
