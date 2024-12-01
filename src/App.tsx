@@ -1,32 +1,14 @@
-import { useEffect, useState } from 'react'
 import './App.css'
 import { app } from './firebase'
-import { signInWithPopup, signOut, getAuth, GoogleAuthProvider } from "firebase/auth";
+import { signInWithPopup, getAuth, GoogleAuthProvider } from "firebase/auth";
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { getDatabase, ref, get, query, orderByChild, equalTo } from 'firebase/database';
-import type { User } from 'firebase/auth'
+import { AuthedUser } from './components/AuthedUser';
 
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-const db = getDatabase(app);
-
-const isUserAdmin = async (user: User): Promise<boolean> => {
-  if (!user?.email || !user?.uid) return false;
-  const [, domain] = user.email.split('@');
-  const [domainName] = domain.split('.');
-  const usersRef = ref(db, `tenants/${domainName}/users`);
-  const readUsers = await get(query(usersRef, orderByChild('uid'), equalTo(user.uid)));
-  return readUsers.val().filter((el: User) => !!el?.uid).length > 0;
-}
-
 function App() {
-  const [isAdmin, setIsAdmin] = useState(false);
   const [user, loading] = useAuthState(auth);
-
-  useEffect(() => {
-    user && isUserAdmin(user).then((result) => setIsAdmin(result));
-  }, [user])
 
   if (loading) {
     return <p>Loading...</p>
@@ -39,14 +21,8 @@ function App() {
     )
   }
 
-  return (
-    <div>
-      <p>displayName: <code>{user.displayName}</code></p>
-      <p>email: <code>{user.email}</code></p>
-      <p>isAdmin: <code>{isAdmin.toString()}</code></p>
-      <button onClick={() => signOut(auth)}>logout</button>
-    </div>
-  )
+  return <AuthedUser user={user} auth={auth} />
+
 }
 
-export default App
+export default App;
