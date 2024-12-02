@@ -32,8 +32,7 @@ export const AuthedUser = ({ user, auth }: Props) => {
     const usersRef = ref(db, `tenants/${org}/users`);
     try {
       const readUsers = await get(query(usersRef));
-      return readUsers.val().includes(user.uid);
-      // return Object.values<User>(readAdmin.val())?.filter((el: User) => !!el?.uid)?.length > 0;
+      return Object.values<string>(readUsers.val())?.includes(user.uid);
     } catch (e) {
       console.log(org, e)
       return false;
