@@ -6,6 +6,7 @@ import { AuthedUser } from './components/AuthedUser';
 
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+provider.addScope('https://www.googleapis.com/auth/user.organization.read');
 
 function App() {
   const [user, loading] = useAuthState(auth);
