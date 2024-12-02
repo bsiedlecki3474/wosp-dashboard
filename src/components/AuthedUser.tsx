@@ -26,10 +26,6 @@ export const AuthedUser = ({ user, auth }: Props) => {
   }, [user])
 
   const org = getOrg();
-
-  (async () => {
-    console.log(await auth.currentUser?.getIdToken());
-  })()
   
   const isUserAdmin = async (): Promise<boolean> => {
     if (!org) return false;
