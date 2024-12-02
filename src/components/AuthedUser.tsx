@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { signOut } from "firebase/auth";
 import { app } from '../firebase'
-import { getDatabase, ref, get, query, orderByChild, equalTo, push, set } from 'firebase/database';
+import { getDatabase, ref, get, query, push } from 'firebase/database';
 import type { Auth, User } from "firebase/auth";
 import { Counter } from './Counter';
 import { AddVolunteerDialog } from './AddVolunteerDialog';
@@ -66,7 +66,7 @@ export const AuthedUser = ({ user, auth }: Props) => {
       <p>displayName: <code>{user.displayName}</code></p>
       <p>email: <code>{user.email}</code></p>
       <p>isAdmin: <code>{isAdmin.toString()}</code></p>
-      <AddVolunteerDialog open={dialogOpen} setOpen={setDialogOpen} />
+      <AddVolunteerDialog open={dialogOpen} setOpen={() => setDialogOpen(true)} />
       <Button onClick={() => signOut(auth)}>logout</Button>
       <Button onClick={() => setDialogOpen(true)}>open dialog</Button>
     </div>
