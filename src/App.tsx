@@ -3,9 +3,12 @@ import { app } from './firebase'
 import { signInWithPopup, getAuth, GoogleAuthProvider } from "firebase/auth";
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { AuthedUser } from './components/AuthedUser';
+import { Button } from '@/components/ui/button';
 
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+provider.addScope('openid');
+provider.addScope('email');
 
 function App() {
   const [user, loading] = useAuthState(auth);
@@ -16,12 +19,14 @@ function App() {
     return (
       <>
         <p>testing stuff</p>
-        <button onClick={() => signInWithPopup(auth, provider)}>login</button>
+        <Button onClick={() => signInWithPopup(auth, provider)}>login</Button>
       </>
     )
   }
 
-  return <AuthedUser user={user} auth={auth} />
+  return (
+    <AuthedUser user={user} auth={auth} />
+  );
 
 }
 
