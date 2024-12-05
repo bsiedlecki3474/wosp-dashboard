@@ -10,12 +10,12 @@ interface Props {
 const db = getDatabase(app);
 
 export const Counter = ({ org }: Props) => {
-  const [collectedValue, setCollectedValue] = useState();
+  const [collectedValue, setCollectedValue] = useState<number>();
 
   const getCollectedValue = async () => {
     const usersRef = ref(db, `tenants/${org}/volunteers`);
     const readUsers = await get(query(usersRef));
-    const value = readUsers.val()?.reduce((acc: number, el: any) => acc += Number(el.value), 0);
+    const value = Object.values(readUsers.val())?.reduce((acc: number, el: any) => acc += Number(el.value), 0);
     setCollectedValue(value);
   }
 

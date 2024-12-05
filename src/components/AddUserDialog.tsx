@@ -20,8 +20,7 @@ import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { app } from '../firebase'
-import { getDatabase, push, ref } from "firebase/database"
+
 
 interface Props {
   open: boolean;
@@ -32,35 +31,30 @@ interface Props {
 const formSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
-  value: z.coerce.number(),
+  email: z.string(),
 })
 
-const db = getDatabase(app);
-
-export const AddVolunteerDialog = ({ open, setOpen, org }: Props) => {
+export const AddUserDialog = ({ open, setOpen }: Props) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
-      value: 0,
+      email: '',
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values, org);
-    const volunteersRef = ref(db, `tenants/${org}/volunteers`);
-    push(volunteersRef, values).then(() => alert('success'))
-
+    console.log(values)
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="mb-2">Add volunteer</DialogTitle>
+          <DialogTitle className="mb-2">Add user</DialogTitle>
           <DialogDescription>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -85,19 +79,6 @@ export const AddVolunteerDialog = ({ open, setOpen, org }: Props) => {
                       <FormLabel>Last name</FormLabel>
                       <FormControl>
                         <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="value"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Collected value</FormLabel>
-                      <FormControl>
-                        <Input inputMode="numeric" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
