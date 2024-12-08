@@ -34,7 +34,7 @@ const formSchema = z.object({
   email: z.string(),
 })
 
-export const AddUserDialog = ({ open, setOpen }: Props) => {
+export const RequestAdminDialog = ({ open, setOpen }: Props) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -48,6 +48,7 @@ export const AddUserDialog = ({ open, setOpen }: Props) => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values)
+    setOpen(false);
   }
 
   return (

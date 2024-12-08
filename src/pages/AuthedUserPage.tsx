@@ -1,28 +1,21 @@
-import { useCallback, useEffect, useState } from 'react'
-import { signOut } from "firebase/auth";
+import { useCallback, useEffect } from 'react'
 import { app } from '../firebase'
 import { getDatabase, ref, get, query, set } from 'firebase/database';
-import type { Auth, User } from "firebase/auth";
-import { Counter } from './Counter';
-import { AddVolunteerDialog } from './AddVolunteerDialog';
-import { Button } from '@/components/ui/button';
-import { AddUserDialog } from './AddUserDialog';
+import type { User } from "firebase/auth";
+import { Counter } from '../components/Counter';
+import { AddVolunteerDialog } from '../components/AddVolunteerDialog';
+import { RequestAdminDialog } from '../components/RequestAdminDialog';
+import { useCurrentUser } from '@/context/UserContext';
+import { DialogType } from '@/types';
 
 interface Props {
   user: User;
-  auth: Auth;
 }
 
 const db = getDatabase(app);
 
-export const enum DialogType {
-  ADD_USER,
-  ADD_VOLUNTEER,
-};
-
-export const AuthedUser = ({ user, auth }: Props) => {
-  const [dialogOpen, setDialogOpen] = useState<DialogType | false>(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+export const AuthedUserPage = ({ user }: Props) => {
+  const { isAdmin, setIsAdmin, org, setOrg, dialogOpen, setDialogOpen } = useCurrentUser();
 
   const getOrg = useCallback((): string | null => {
     if (!user?.email || !user?.uid) return null;
@@ -31,8 +24,6 @@ export const AuthedUser = ({ user, auth }: Props) => {
     return (!import.meta.env.DEV && org === 'gmail_com') ? null : org;
   }, [user])
 
-  const org = getOrg();
-  
   const isUserAdmin = async (): Promise<boolean> => {
     if (!org) return false;
     const usersRef = ref(db, `tenants/${org}/users/${user.uid}/role`);
@@ -53,38 +44,50 @@ export const AuthedUser = ({ user, auth }: Props) => {
       displayName: user.displayName,
       email: user.email,
       role: 'root',
-    }).then(() => setIsAdmin(true));
+    }).then(() => setIsAdmin(true)).then(setOrgAdminCode);
   }
 
-  const setAddUserDialogOpen = (value: boolean) => {
-    setDialogOpen(value ? DialogType.ADD_USER : false);
-  }  
+  const setOrgAdminCode = () => {
+    const orgRef = ref(db, `tenants/${org}}/admin_code`);
+    set(orgRef, generateCode(6))
+  }
+
+  const generateCode = (length: number) => {
+    return Array.from({ length }, () => Math.floor(Math.random() * 8)).join('');
+  }
+
+  const setRequestAdminDialogOpen = (value: boolean) => {
+    setDialogOpen(value ? DialogType.REQUEST_ADMIN : false);
+  }
 
   const setAddVolunteerDialogOpen = (value: boolean) => {
-    setDialogOpen(value ? DialogType.ADD_VOLUNTEER : false);  
+    setDialogOpen(value ? DialogType.ADD_VOLUNTEER : false);
   }
 
   useEffect(() => {
-    user && isUserAdmin().then((result) => {
+    setOrg(getOrg());
+    isUserAdmin().then((result) => {
       setIsAdmin(result);
       if (!result) {
         createOrgRootUser();
       }
     });
-  }, [user]);
+  }, [org]);
 
   return (
-    <div>
+    <div className="flex flex-col items-center justify-center h-screen">
       {org && <b><Counter org={org} /></b>}
       {org && <p>org: <code>{org}</code></p>}
       <p>displayName: <code>{user.displayName}</code></p>
       <p>email: <code>{user.email}</code></p>
       <p>isAdmin: <code>{isAdmin.toString()}</code></p>
-      <AddUserDialog org={org!} open={dialogOpen === DialogType.ADD_USER} setOpen={setAddUserDialogOpen} />
-      <AddVolunteerDialog org={org!} open={dialogOpen === DialogType.ADD_VOLUNTEER} setOpen={setAddVolunteerDialogOpen} />
-      <Button onClick={() => signOut(auth)}>logout</Button>
-      <Button onClick={() => setAddUserDialogOpen(true)}>add user</Button>
-      <Button onClick={() => setAddVolunteerDialogOpen(true)}>add volunteer</Button>
+      {/* todo: get org from context */}
+      {org && (
+        <>
+          <RequestAdminDialog org={org} open={dialogOpen === DialogType.REQUEST_ADMIN} setOpen={setRequestAdminDialogOpen} />
+          <AddVolunteerDialog org={org} open={dialogOpen === DialogType.ADD_VOLUNTEER} setOpen={setAddVolunteerDialogOpen} />
+        </>
+      )}
     </div>
   )
 }

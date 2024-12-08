@@ -1,7 +1,8 @@
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { app } from '../firebase'
-import { getDatabase, ref, get, query } from 'firebase/database';
+import { getDatabase, ref, onValue } from 'firebase/database';
+import CountUp from 'react-countup';
 
 interface Props {
   org: string;
@@ -10,22 +11,19 @@ interface Props {
 const db = getDatabase(app);
 
 export const Counter = ({ org }: Props) => {
-  const [collectedValue, setCollectedValue] = useState<number>();
+  const [collectedValue, setCollectedValue] = useState<number>(0);
+  const counterRef = ref(db, `tenants/${org}/volunteers`);
 
-  const getCollectedValue = async () => {
-    const usersRef = ref(db, `tenants/${org}/volunteers`);
-    const readUsers = await get(query(usersRef));
-    const value = Object.values(readUsers.val())?.reduce((acc: number, el: any) => acc += Number(el.value), 0);
+  onValue(counterRef, (snapshot) => {
+    const volunteers = snapshot.val();
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
+    const value = Object.values(volunteers)?.reduce((acc: number, el: any) => acc += Number(el.value), 0);
     setCollectedValue(value);
-  }
-
-  useEffect(() => {
-    getCollectedValue();
-  }, [])
+  }, { onlyOnce: true });
 
   return (
-    <div>
-      {collectedValue}
+    <div className="counter-wrapper">
+      <CountUp className="counter" end={collectedValue} duration={3} delay={0.5} separator=" " decimal="," />
     </div>
   )
 }

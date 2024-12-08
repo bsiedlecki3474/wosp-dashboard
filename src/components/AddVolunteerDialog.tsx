@@ -52,8 +52,7 @@ export const AddVolunteerDialog = ({ open, setOpen, org }: Props) => {
     // ✅ This will be type-safe and validated.
     console.log(values, org);
     const volunteersRef = ref(db, `tenants/${org}/volunteers`);
-    push(volunteersRef, values).then(() => alert('success'))
-
+    push(volunteersRef, values).then(() => setOpen(false))
   }
 
   return (
@@ -103,7 +102,7 @@ export const AddVolunteerDialog = ({ open, setOpen, org }: Props) => {
                     </FormItem>
                   )}
                 />
-                <Button type="submit">Submit</Button>
+                <Button type="submit" variant="success">Submit</Button>
               </form>
             </Form>
           </DialogDescription>
